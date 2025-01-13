@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Eventos para los botones
     document.getElementById('cargarJson').addEventListener('click', obtenerDatosJson);
-
+    document.getElementById('pubPhp').addEventListener('click', publicarPhp);
 
     // Validación de campos en tiempo real
     form.querySelectorAll('input').forEach(input => {
@@ -94,8 +94,21 @@ function obtenerDatosJson(){
 }
 
 
-function obtenerDatosBBDD(){
-    
+
+
+function publicarPhp(){
+
+    const formData = new FormData(document.querySelector('.form'));
+
+    fetch('http://localhost:8080/PROYECTO-8-DEW/datos.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(res => res.text())
+        .then(data => {
+            console.log('Respuesta servidor: ', data);
+        })
+        .catch(error => {
+            console.log('Error: ', error);
+        })
 }
-
-
