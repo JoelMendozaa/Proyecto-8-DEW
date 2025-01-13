@@ -100,7 +100,7 @@ function publicarPhp(){
 
     const formData = new FormData(document.querySelector('.form'));
 
-    fetch('http://localhost:8080/PROYECTO-8-DEW/datos.php', {
+    fetch('http://localhost:8080/Proyecto-8-DEW/datos.php', {
         method: 'POST',
         body: formData
     })
