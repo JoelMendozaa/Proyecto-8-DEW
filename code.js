@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Eventos para los botones
     document.getElementById('cargarJson').addEventListener('click', obtenerDatosJson);
     document.getElementById('pubPhp').addEventListener('click', publicarPhp);
+    document.getElementById('cargarPhp').addEventListener('click', obtenerDatosPhp);
 
     // Validación de campos en tiempo real
     form.querySelectorAll('input').forEach(input => {
@@ -109,11 +110,37 @@ function publicarPhp(){
             console.log('Respuesta servidor: ', data);
         })
         .catch(error => {
-            console.log('Error: ', error);
+            console.error('Error: ', error);
         })
 }
 
 
-function cargarPhp(){
-    
+function obtenerDatosPhp(){
+    // Seleccionamos el formulario
+    const formElement = document.querySelector('.form'); 
+
+    // Recogemos los datos del formulario
+    const formData = new FormData(formElement);
+
+    fetch('http://localhost:8080/Proyecto-8-DEW/recoger_datos.php', {
+        method: 'POST',
+        body: formData
+    })
+        .then(res => res.text())
+        .then(data => {
+            document.getElementById('nombre').value = data.nombre;
+            document.getElementById('apellido').value = data.apellido;
+            document.getElementById('dni').value = data.dni;
+            document.getElementById('nacimiento').value = data.fechaNacimiento;
+            document.getElementById('cp').value = data.codigoPostal;
+            document.getElementById('email').value = data.email;
+            document.getElementById('fijo').value = data.telFijo;
+            document.getElementById('movil').value = data.telMovil;
+            document.getElementById('iban').value = data.iban;
+            document.getElementById('tarjeta').value = data.tarjetaCredito;
+            document.getElementById('passwd').value = data.password;
+            document.getElementById('confirmar').value = data.password;
+        })
+        .catch(error => console.error('Error al cargar PHP:', error))
 }
+
