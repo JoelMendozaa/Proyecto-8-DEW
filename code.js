@@ -112,3 +112,8 @@ function publicarPhp(){
             console.log('Error: ', error);
         })
 }
+
+
+function cargarPhp(){
+    
+}
