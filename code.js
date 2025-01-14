@@ -106,40 +106,40 @@ function publicarPhp() {
 
     fetch('http://localhost:8080/Proyecto-8-DEW/publicar_php.php', {
         method: 'POST',
-        body: formData // Enviar los datos como JSON
+        body: formData // Enviar los datos como FormData
     })
         .then(res => res.json())
         .then(data => {
             console.log('Respuesta servidor: ', data);
+
             if (data.message === "Datos guardados correctamente") {
-                // Limpiar los campos del formulario antes de ocultarlo
+                // Limpiar y ocultar el formulario
                 const formElement = document.querySelector('.form');
                 formElement.querySelectorAll('input').forEach(input => input.value = '');
+                formElement.style.display = 'none'; 
 
-                // Ocultar el formulario
-                formElement.style.display = 'none'; // Ocultar formulario
-
+                // Esperar 2 segundos antes de recargar los datos
                 setTimeout(() => {
-                    // Mostrar el formulario de nuevo y cargar los datos
-                    formElement.style.display = 'block';
+                    formElement.style.display = 'block'; // Mostrar formulario nuevamente
 
-                    // Cargar los datos desde el servidor
+                    // Solicitar datos al servidor
                     fetch('http://localhost:8080/Proyecto-8-DEW/get_php.php', {
                         method: 'GET',
                     })
                         .then(res => res.json())
                         .then(data => {
                             if (data.message === "Datos recuperados correctamente") {
-                                // Poblar el formulario con los datos recibidos
                                 const userData = data.data;
+
+                                // Poblar el formulario con los datos recibidos
                                 document.getElementById('nombre').value = userData.nombre || '';
                                 document.getElementById('apellido').value = userData.apellido || '';
                                 document.getElementById('dni').value = userData.dni || '';
                                 document.getElementById('nacimiento').value = userData.fechaNacimiento || '';
                                 document.getElementById('cp').value = userData.codigoPostal || '';
                                 document.getElementById('email').value = userData.email || '';
-                                document.getElementById('fijo').value = userData.telefonoFijo || ''; 
-                                document.getElementById('movil').value = userData.telefonoMovil || ''; 
+                                document.getElementById('fijo').value = userData.telefonoFijo || '';
+                                document.getElementById('movil').value = userData.telefonoMovil || '';
                                 document.getElementById('iban').value = userData.iban || '';
                                 document.getElementById('tarjeta').value = userData.tarjetaCredito || '';
                                 document.getElementById('passwd').value = userData.password || '';
@@ -156,6 +156,7 @@ function publicarPhp() {
             console.error('Error: ', error);
         });
 }
+
 
 // Función para obtener los datos guardados (GET)
 function obtenerDatosPhp() {
