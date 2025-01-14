@@ -1,0 +1,14 @@
+{
+    "nombre": "Pepe",
+    "apellidos": "L\u00f3pez P\u00e9rez",
+    "dni": "12345678X",
+    "fechaNacimiento": "22\/09\/2000",
+    "codigoPostal": "35500",
+    "email": "pepe@gmail.com",
+    "telFijo": "928666666",
+    "telMovil": "666999666",
+    "iban": "ES7921000813610123456789",
+    "tarjetaCredito": "4539955085883327",
+    "password": "Pepe1234567890",
+    "confirmarPassword": "Pepe1234567890"
+}

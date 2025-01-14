@@ -94,53 +94,69 @@ function obtenerDatosJson(){
         })
 }
 
-
-
-
-function publicarPhp(){
-
+// Función para publicar los datos (POST)
+function publicarPhp() {
     const formData = new FormData(document.querySelector('.form'));
+
+    // Convertir FormData en un objeto JSON
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
 
     fetch('http://localhost:8080/Proyecto-8-DEW/datos.php', {
         method: 'POST',
-        body: formData
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data) // Enviar los datos como JSON
     })
-        .then(res => res.text())
+        .then(res => res.json())
         .then(data => {
             console.log('Respuesta servidor: ', data);
+            if (data.message === "Datos guardados correctamente") {
+                // Después de guardar, ocultar el formulario por 2 segundos
+                const formElement = document.querySelector('.form');
+                formElement.style.display = 'none'; // Ocultar formulario
+
+                setTimeout(() => {
+                    // Mostrar el formulario de nuevo y cargar los datos
+                    formElement.style.display = 'block';
+                    obtenerDatosPhp(); // Obtener y mostrar los datos guardados
+                }, 2000); // Esperar 2 segundos
+            }
         })
         .catch(error => {
             console.error('Error: ', error);
-        })
+        });
 }
 
-
-function obtenerDatosPhp(){
-    // Seleccionamos el formulario
-    const formElement = document.querySelector('.form'); 
-
-    // Recogemos los datos del formulario
-    const formData = new FormData(formElement);
-
-    fetch('http://localhost:8080/Proyecto-8-DEW/recoger_datos.php', {
-        method: 'POST',
-        body: formData
+// Función para obtener los datos guardados (GET)
+function obtenerDatosPhp() {
+    fetch('http://localhost:8080/Proyecto-8-DEW/datos.php', {
+        method: 'GET',
     })
-        .then(res => res.text())
+        .then(res => res.json())
         .then(data => {
-            document.getElementById('nombre').value = data.nombre;
-            document.getElementById('apellido').value = data.apellido;
-            document.getElementById('dni').value = data.dni;
-            document.getElementById('nacimiento').value = data.fechaNacimiento;
-            document.getElementById('cp').value = data.codigoPostal;
-            document.getElementById('email').value = data.email;
-            document.getElementById('fijo').value = data.telFijo;
-            document.getElementById('movil').value = data.telMovil;
-            document.getElementById('iban').value = data.iban;
-            document.getElementById('tarjeta').value = data.tarjetaCredito;
-            document.getElementById('passwd').value = data.password;
-            document.getElementById('confirmar').value = data.password;
+            if (data.message === "Datos recuperados correctamente") {
+                // Poblar el formulario con los datos recibidos
+                const userData = data.data;
+                document.getElementById('nombre').value = userData.nombre || '';
+                document.getElementById('apellido').value = userData.apellido || '';
+                document.getElementById('dni').value = userData.dni || '';
+                document.getElementById('nacimiento').value = userData.fechaNacimiento || '';
+                document.getElementById('cp').value = userData.codigoPostal || '';
+                document.getElementById('email').value = userData.email || '';
+                document.getElementById('fijo').value = userData.telFijo || '';
+                document.getElementById('movil').value = userData.telMovil || '';
+                document.getElementById('iban').value = userData.iban || '';
+                document.getElementById('tarjeta').value = userData.tarjetaCredito || '';
+                document.getElementById('passwd').value = userData.password || '';
+                document.getElementById('confirmar').value = userData.password || '';
+            } else {
+                console.error('No se encontraron datos guardados');
+            }
         })
-        .catch(error => console.error('Error al cargar PHP:', error))
+        .catch(error => console.error('Error al cargar datos: ', error));
 }
 
