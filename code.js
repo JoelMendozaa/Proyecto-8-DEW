@@ -104,7 +104,7 @@ function publicarPhp() {
         data[key] = value;
     });
 
-    fetch('http://localhost:8080/Proyecto-8-DEW/recoger_datos.php', {
+    fetch('http://localhost:8080/Proyecto-8-DEW/publicar_php.php', {
         method: 'POST',
         body: formData // Enviar los datos como JSON
     })
@@ -112,14 +112,19 @@ function publicarPhp() {
         .then(data => {
             console.log('Respuesta servidor: ', data);
             if (data.message === "Datos guardados correctamente") {
-                // Después de guardar, ocultar el formulario por 2 segundos
+                // Limpiar los campos del formulario antes de ocultarlo
                 const formElement = document.querySelector('.form');
+                formElement.querySelectorAll('input').forEach(input => input.value = '');
+
+                // Ocultar el formulario
                 formElement.style.display = 'none'; // Ocultar formulario
 
                 setTimeout(() => {
                     // Mostrar el formulario de nuevo y cargar los datos
                     formElement.style.display = 'block';
-                    fetch('http://localhost:8080/Proyecto-8-DEW/datos.php', {
+
+                    // Cargar los datos desde el servidor
+                    fetch('http://localhost:8080/Proyecto-8-DEW/get_php.php', {
                         method: 'GET',
                     })
                         .then(res => res.json())
@@ -133,8 +138,8 @@ function publicarPhp() {
                                 document.getElementById('nacimiento').value = userData.fechaNacimiento || '';
                                 document.getElementById('cp').value = userData.codigoPostal || '';
                                 document.getElementById('email').value = userData.email || '';
-                                document.getElementById('fijo').value = userData.telFijo || '';
-                                document.getElementById('movil').value = userData.telMovil || '';
+                                document.getElementById('fijo').value = userData.telefonoFijo || ''; 
+                                document.getElementById('movil').value = userData.telefonoMovil || ''; 
                                 document.getElementById('iban').value = userData.iban || '';
                                 document.getElementById('tarjeta').value = userData.tarjetaCredito || '';
                                 document.getElementById('passwd').value = userData.password || '';
@@ -154,7 +159,7 @@ function publicarPhp() {
 
 // Función para obtener los datos guardados (GET)
 function obtenerDatosPhp() {
-    fetch('http://localhost:8080/Proyecto-8-DEW/datos.php', {
+    fetch('http://localhost:8080/Proyecto-8-DEW/get_php.php', {
         method: 'GET',
     })
         .then(res => res.json())
