@@ -1,38 +1,31 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: POST, GET");
+header("Access-Control-Allow-Headers: Content-Type");
+
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Recoger los datos del formulario (por ejemplo, 'nombre', 'apellido', etc.)
-    $nombre = $_POST['nombre'] ?? '';
-    $apellido = $_POST['apellidos'] ?? '';
-    $dni = $_POST['dni'] ?? '';
-    $fechaNacimiento = $_POST['fechaNacimiento'] ?? '';
-    $codigoPostal = $_POST['codigoPostal'] ?? '';
-    $email = $_POST['email'] ?? '';
-    $telFijo = $_POST['telFijo'] ?? '';
-    $telMovil = $_POST['telMovil'] ?? '';
-    $iban = $_POST['iban'] ?? '';
-    $tarjetaCredito = $_POST['tarjetaCredito'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $confirmar = $_POST['password'] ??'';
-    
-    // Preparamos los datos para devolver como JSON
-    $response = [
-        'nombre' => $nombre,
-        'apellido' => $apellido,
-        'dni' => $dni,
-        'fechaNacimiento' => $fechaNacimiento,
-        'codigoPostal' => $codigoPostal,
-        'email' => $email,
-        'telFijo' => $telFijo,
-        'telMovil' => $telMovil,
-        'iban' => $iban,
-        'tarjetaCredito' => $tarjetaCredito,
-        'password' => $password,
-        'confirmar' => $password
+    $_SESSION['datos'] = [
+        $nombre = $_POST['nombre'] ?? '',
+        $apellido = $_POST['apellidos'] ?? '',
+        $dni = $_POST['dni'] ?? '',
+        $fechaNacimiento = $_POST['fechaNacimiento'] ?? '',
+        $codigoPostal = $_POST['codigoPostal'] ?? '',
+        $email = $_POST['email'] ?? '',
+        $telFijo = $_POST['telFijo'] ?? '',
+        $telMovil = $_POST['telMovil'] ?? '',
+        $iban = $_POST['iban'] ?? '',
+        $tarjetaCredito = $_POST['tarjetaCredito'] ?? '',
+        $password = $_POST['password'] ?? '',
+        $confirmar = $_POST['password'] ??'',
     ];
-
-    // Establecer el encabezado para indicar que la respuesta será en formato JSON
-    header('Content-Type: application/json');
-
     // Convertir el array PHP a JSON y devolverlo como respuesta
-    echo json_encode($response);
+    echo json_encode(["message" => "Datos guardos correctamente"]);
+} elseif($_SERVER['REQUEST_METHOD'] == 'GET') {
+    $datos = $_SESSION['datos'] ?? [];
+    echo json_encode(['message'=> 'datos']);
 }

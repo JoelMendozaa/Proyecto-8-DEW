@@ -19,7 +19,6 @@
         }
     
         // Definir la ruta al archivo donde se van a guardar los datos
-        $file = __DIR__ . '/usuarioPOST.json';  // Ruta completa del archivo
     
         // Intentar guardar los datos en el archivo JSON
         $result = file_put_contents($file, json_encode($data, JSON_PRETTY_PRINT));
@@ -36,7 +35,6 @@
             ]);
         }
     }elseif ($_SERVER['REQUEST_METHOD'] == 'GET') {
-        $file = __DIR__ . '/usuarioGET.json';
         // Leer los datos del archivo JSON
         if (file_exists($file)) {
             $json_data = file_get_contents($file);
