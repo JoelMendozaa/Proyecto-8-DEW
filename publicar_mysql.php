@@ -1,58 +1,88 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json");
-header("Access-Control-Allow-Methods: POST");
+    header("Content-Type: application/json");
+    header("Access-Control-Allow-Origin: *");
 
-// Conexión a la base de datos
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "bbdd_joel";
+    // Detalles de conexión a la base de datos
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "bbdd_joel";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+    // Inicializar array de respuesta
+    $respuesta = [];
 
-if ($conn->connect_error) {
-    echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
-    exit(); // Detener el script si la conexión falla
-}
+    try {
+        // Crear conexión a la base de datos
+        $conexion = new mysqli($servername, $username, $password, $dbname);
 
-// Verificar si los datos se reciben correctamente
-if (!isset($_POST['nombre'], $_POST['apellido'], $_POST['dni'], $_POST['fechaNacimiento'], $_POST['cp'], $_POST['email'], $_POST['fijo'], $_POST['movil'], $_POST['iban'], $_POST['tarjetaCredito'], $_POST['passwd'])) {
-    echo json_encode(["error" => "Faltan algunos datos en la solicitud POST"]);
-    exit(); // Detener el script si faltan datos
-}
+        // Verificar la conexión
+        if ($conexion->connect_error) {
+            throw new Exception("Error de conexión a la base de datos: " . $conexion->connect_error);
+        }
 
-// Obtener datos del POST
-$nombre = $_POST['nombre'];
-$apellidos = $_POST['apellidos'];
-$dni = $_POST['dni'];
-$fechaNacimiento = $_POST['fechaNacimiento'];
-$codigoPostal = $_POST['codigoPostal'];
-$email = $_POST['email'];
-$telFijo = $_POST['telFijo'];
-$telMovil = $_POST['telMovil'];
-$iban = $_POST['iban'];
-$tarjetaCredito = $_POST['tarjetaCredito'];
-$contrasena = $_POST['passwd'];
+        // Verificar si todos los campos requeridos están presentes
+        $campos_requeridos = ['dni', 'nombre', 'apellidos', 'fechaNacimiento', 'codigoPostal', 'email', 'telFijo', 'telMovil', 'iban', 'tarjetaCredito', 'password'];
+        foreach ($campos_requeridos as $campo) {
+            if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+                throw new Exception("El campo '$campo' es obligatorio y no puede estar vacío");
+            }
+        }
 
-// Consulta SQL para insertar datos
-$sql = 'INSERT INTO usuarios (dni, nombre, apellidos, fechaNacimiento, codigoPostal, email, telFijo, telMovil, iban, tarjetaCredito, passwd) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        // Sanitizar todas las entradas
+        $entrada_sanitizada = array_map('sanitizar_entrada', $_POST);
 
-$stmt = $conn->prepare($sql);
-if ($stmt === false) {
-    echo json_encode(["error" => "Error al preparar la consulta SQL: " . $conn->error]);
-    exit();
-}
+        // Preparar la declaración SQL
+        $sql = "INSERT INTO usuarios (dni, nombre, apellidos, fechaNacimiento, codigoPostal, email, telFijo, telMovil, iban, credito, contrasena) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE 
+                nombre = VALUES(nombre), 
+                apellidos = VALUES(apellidos), 
+                fechaNacimiento = VALUES(fechaNacimiento), 
+                codigoPostal = VALUES(codigoPostal), 
+                email = VALUES(email), 
+                telFijo = VALUES(telFijo), 
+                telMovil = VALUES(telMovil), 
+                iban = VALUES(iban), 
+                credito = VALUES(credito), 
+                contrasena = VALUES(contrasena)";
 
-$stmt->bind_param('sssssssssss', $dni, $nombre, $apellidos, $fechaNacimiento, $codigoPostal, $email, $telFijo, $telMovil, $iban, $tarjetaCredito, $contrasena);
+        $stmt = $conexion->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Error al preparar la consulta: " . $conexion->error);
+        }
 
-if ($stmt->execute()) {
-    echo json_encode(["message" => "Datos guardados correctamente"]);
-} else {
-    echo json_encode(["error" => "Error al ejecutar la consulta: " . $stmt->error]);
-}
+        $stmt->bind_param("sssssssssss", 
+            $entrada_sanitizada['dni'], 
+            $entrada_sanitizada['nombre'], 
+            $entrada_sanitizada['apellidos'], 
+            $entrada_sanitizada['fechaNacimiento'], 
+            $entrada_sanitizada['codigoPostal'], 
+            $entrada_sanitizada['email'], 
+            $entrada_sanitizada['telFijo'], 
+            $entrada_sanitizada['telMovil'], 
+            $entrada_sanitizada['iban'], 
+            $entrada_sanitizada['credito'], 
+            $entrada_sanitizada['contrasena']
+        );
 
-$stmt->close();
-$conn->close();
+        if (!$stmt->execute()) {
+            throw new Exception("Error al ejecutar la consulta: " . $stmt->error);
+        }
+
+        $respuesta["mensaje"] = "Los datos se han guardado correctamente en la base de datos";
+
+    } catch (Exception $e) {
+        $respuesta["error"] = $e->getMessage();
+    } finally {
+        // Cerrar la declaración y la conexión si existen
+        if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+            $stmt->close();
+        }
+        if (isset($conexion) && $conexion instanceof mysqli) {
+            $conexion->close();
+        }
+
+        // Enviar respuesta JSON
+        echo json_encode($respuesta);
+    }
 ?>
