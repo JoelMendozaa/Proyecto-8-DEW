@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cargarPhp').addEventListener('click', obtenerDatosPhp);
     document.getElementById('pubBbdd').addEventListener('click', publicarBbdd);
 
+    
 
     // Validación de campos en tiempo real
     form.querySelectorAll('input').forEach(input => {
@@ -63,6 +64,16 @@ function validate(field, regex){
 
 }
 
+// Función para rellenar el formulario con los datos
+function rellenarFormulario(data) {
+    const inputs = document.querySelectorAll('input'); // Seleccionar todos los inputs
+    inputs.forEach(input => {
+      const fieldName = input.name; // Nombre del campo en el formulario
+      if (data[fieldName]) {
+        input.value = data[fieldName]; // Asignar el valor correspondiente
+      }
+    });
+  }
 
 const campos = [
     'nombre', 'apellidos', 'dni', 'fechaNacimiento',
@@ -231,4 +242,9 @@ function publicarBbdd() {
         .catch(error => {
             console.error('Error: ', error);
         });
+}
+
+
+function obtenerBbdd(){
+    
 }
