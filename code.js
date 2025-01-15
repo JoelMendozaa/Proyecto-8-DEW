@@ -120,7 +120,6 @@ function publicarPhp() {
 
                 // Esperar 2 segundos antes de recargar los datos
                 setTimeout(() => {
-                    formElement.style.display = 'block'; // Mostrar formulario nuevamente
 
                     // Solicitar datos al servidor
                     fetch('http://localhost:8080/Proyecto-8-DEW/get_php.php', {
@@ -187,3 +186,33 @@ function obtenerDatosPhp() {
         .catch(error => console.error('Error al cargar datos: ', error));
 }
 
+
+function publicarBbdd() {
+    const formData = new FormData(document.querySelector('.form'));
+
+    // Convertir FormData en un objeto JSON
+    const data = {};
+    formData.forEach((value, key) => {
+        data[key] = value;
+    });
+
+    fetch('http://localhost:8080/Proyecto-8-DEW/publicar_mysql.php', {
+        method: 'POST',
+        body: formData // Enviar los datos como FormData
+    })
+        .then(res => res.json())
+        .then(data => {
+            console.log('Respuesta servidor: ', data);
+
+            if (data.message === "Datos guardados correctamente") {
+                // Limpiar y ocultar el formulario
+                const formElement = document.querySelector('.form');
+                formElement.querySelectorAll('input').forEach(input => input.value = '');
+                formElement.style.display = 'none'; 
+             
+            }
+        })
+        .catch(error => {
+            console.error('Error: ', error);
+        });
+}
