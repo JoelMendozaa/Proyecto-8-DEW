@@ -36,6 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cargarJson').addEventListener('click', obtenerDatosJson);
     document.getElementById('pubPhp').addEventListener('click', publicarPhp);
     document.getElementById('cargarPhp').addEventListener('click', obtenerDatosPhp);
+    document.getElementById('pubBbdd').addEventListener('click', publicarBbdd);
+
 
     // Validación de campos en tiempo real
     form.querySelectorAll('input').forEach(input => {
@@ -60,6 +62,14 @@ function validate(field, regex){
     }
 
 }
+
+
+const campos = [
+    'nombre', 'apellidos', 'dni', 'fechaNacimiento',
+    'codigoPostal', 'email', 'telefonoFijo', 'telefonoMovil',
+    'iban', 'tarjetaCredito', 'password', 'repeatPassword'
+];
+
 
 
 function obtenerDatosJson(){
@@ -200,16 +210,22 @@ function publicarBbdd() {
         method: 'POST',
         body: formData // Enviar los datos como FormData
     })
-        .then(res => res.json())
+        .then(res => res.text()) // Primero obtenemos el cuerpo como texto
+        .then(text => {
+            console.log('Respuesta del servidor: ', text); // Ver el contenido de la respuesta
+            try {
+                return JSON.parse(text); // Intentamos convertir a JSON
+            } catch (e) {
+                throw new Error('La respuesta no es un JSON válido');
+            }
+        })
         .then(data => {
-            console.log('Respuesta servidor: ', data);
-
+            console.log('Datos procesados: ', data);
             if (data.message === "Datos guardados correctamente") {
                 // Limpiar y ocultar el formulario
                 const formElement = document.querySelector('.form');
                 formElement.querySelectorAll('input').forEach(input => input.value = '');
                 formElement.style.display = 'none'; 
-             
             }
         })
         .catch(error => {

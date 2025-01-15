@@ -1,44 +1,58 @@
 <?php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json");
+header("Access-Control-Allow-Methods: POST");
 
-    header("Access-Control-Allow-Origin: *");
-    header("Content-Type: application/json;");
+// Conexión a la base de datos
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bbdd_joel";
 
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $dbname = "bbdd_joel";
+$conn = new mysqli($servername, $username, $password, $dbname);
 
+if ($conn->connect_error) {
+    echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
+    exit(); // Detener el script si la conexión falla
+}
 
-    $conn = new mysqli($servername, $username, $password, $dbname);
+// Verificar si los datos se reciben correctamente
+if (!isset($_POST['nombre'], $_POST['apellido'], $_POST['dni'], $_POST['fechaNacimiento'], $_POST['cp'], $_POST['email'], $_POST['fijo'], $_POST['movil'], $_POST['iban'], $_POST['tarjetaCredito'], $_POST['passwd'])) {
+    echo json_encode(["error" => "Faltan algunos datos en la solicitud POST"]);
+    exit(); // Detener el script si faltan datos
+}
 
-    if ($conn->connect_error) {
-        die("". $conn->connect_error);
-    }
+// Obtener datos del POST
+$nombre = $_POST['nombre'];
+$apellidos = $_POST['apellidos'];
+$dni = $_POST['dni'];
+$fechaNacimiento = $_POST['fechaNacimiento'];
+$codigoPostal = $_POST['codigoPostal'];
+$email = $_POST['email'];
+$telFijo = $_POST['telFijo'];
+$telMovil = $_POST['telMovil'];
+$iban = $_POST['iban'];
+$tarjetaCredito = $_POST['tarjetaCredito'];
+$contrasena = $_POST['passwd'];
 
-    $nombre = $_POST['nombre'];
-    $apellido = $_POST['apellidos'];
-    $dni = $_POST['dni'];
-    $fechaNacimiento = $_POST['fechaNacimiento'];
-    $codigoPostal = $_POST['codigoPostal'];
-    $email = $_POST['email'];
-    $telFijo = $_POST['telFijo'];
-    $telMovil = $_POST['telMovil'];
-    $iban = $_POST['iban'];
-    $tarjetaCredito = $_POST['tarjetaCredito'];
-    $password = $_POST['password'];
+// Consulta SQL para insertar datos
+$sql = 'INSERT INTO usuarios (dni, nombre, apellidos, fechaNacimiento, codigoPostal, email, telFijo, telMovil, iban, tarjetaCredito, passwd) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-    $sql = 'INSERT INTO usuarios (dni, nombre, apellidos, fechaNacimiento, codigoPostal, email, telFijo, telMovil, iban, tarjetaCredito, password) 
-    VALUES (?,?,?,?,?,?,?,?,?,?,?)';
+$stmt = $conn->prepare($sql);
+if ($stmt === false) {
+    echo json_encode(["error" => "Error al preparar la consulta SQL: " . $conn->error]);
+    exit();
+}
 
-    $result = $conn->prepare($sql);
-    
-    $result->bind_param('ssssssssssss', $dni, $nombre, $apellido, $fechaNacimiento, $codigoPostal, $email, $telFijo, $telMovil, $iban, $tarjetaCredito, $password, $password);
+$stmt->bind_param('sssssssssss', $dni, $nombre, $apellidos, $fechaNacimiento, $codigoPostal, $email, $telFijo, $telMovil, $iban, $tarjetaCredito, $contrasena);
 
-    if ($result->execute()) {
-        echo json_encode(["messages" => "Datos guardados"]);
-    } else {
-        echo json_encode(["error"=> "Error al guardar: ".$result -> error]);
-    }
-    
-    $result -> close();
-    $conn ->close();
+if ($stmt->execute()) {
+    echo json_encode(["message" => "Datos guardados correctamente"]);
+} else {
+    echo json_encode(["error" => "Error al ejecutar la consulta: " . $stmt->error]);
+}
+
+$stmt->close();
+$conn->close();
+?>
